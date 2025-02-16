@@ -76,12 +76,37 @@ const addBookHandler = (request, h) => {
   return response;
 };
 
-const getAllBokesHandler = () => ({
-  status: "success",
-  data: {
-    books,
-  },
-});
+const getAllBooksHandler = (request, h) => {
+  let filteredBooks = books;
+
+  const { name, reading, finished } = request.query;
+
+  if (name) {
+    filteredBooks = filteredBooks.filter((book) =>
+      book.name.toLowerCase().includes(name.toLowerCase())
+    );
+  }
+
+  if (reading !== undefined) {
+    const isReading = reading === "1";
+    filteredBooks = filteredBooks.filter((book) => book.reading === isReading);
+  }
+
+  if (finished !== undefined) {
+    const isFinished = finished === "1";
+    filteredBooks = filteredBooks.filter(
+      (book) => book.finished === isFinished
+    );
+  }
+
+  const response = h.response({
+    status: "success",
+    data: {
+      books: filteredBooks,
+    },
+  });
+  return response;
+};
 
 const getBookByIdHandler = (request, h) => {
   const { bookId: id } = request.params;
@@ -195,7 +220,7 @@ const deleteBookByIdHandler = (request, h) => {
 
 module.exports = {
   addBookHandler,
-  getAllBokesHandler,
+  getAllBooksHandler,
   getBookByIdHandler,
   editBookByIdHandler,
   deleteBookByIdHandler,
