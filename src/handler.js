@@ -54,7 +54,7 @@ const addBookHandler = (request, h) => {
 
   books.push(newBook);
 
-  const isSuccess = books.filter((book) => book.id === id).length > 0;
+  const isSuccess = books.some((book) => book.id === id);
 
   if (isSuccess) {
     const response = h.response({
@@ -102,7 +102,11 @@ const getAllBooksHandler = (request, h) => {
   const response = h.response({
     status: "success",
     data: {
-      books: filteredBooks,
+      books: filteredBooks.map(({ id, name, publisher }) => ({
+        id,
+        name,
+        publisher,
+      })),
     },
   });
   return response;
@@ -111,7 +115,7 @@ const getAllBooksHandler = (request, h) => {
 const getBookByIdHandler = (request, h) => {
   const { bookId: id } = request.params;
 
-  const book = books.filter((b) => b.id === id)[0];
+  const book = books.find((b) => b.id === id);
 
   if (book !== undefined) {
     return {
@@ -165,7 +169,8 @@ const editBookByIdHandler = (request, h) => {
 
   const updatedAt = new Date().toISOString();
   const index = books.findIndex((book) => book.id === id);
-
+  const finished = pageCount === readPage;
+  
   if (index !== -1) {
     books[index] = {
       ...books[index],
@@ -176,6 +181,7 @@ const editBookByIdHandler = (request, h) => {
       publisher,
       pageCount,
       readPage,
+      finished,
       reading,
       updatedAt,
     };
